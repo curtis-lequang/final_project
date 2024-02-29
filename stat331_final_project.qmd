@@ -1,0 +1,51 @@
+---
+title: "Stat 331 Final Project"
+author: "Curtis LeQuang, Warren Woo, Johnny Young, Carter Coppes"
+format: 
+  html:
+    embed-resources: true
+    code-tools: true
+    toc: true
+editor: source
+execute: 
+  error: true
+  echo: true
+  message: false
+  warning: false
+---
+
+```{r setup}
+#| code-fold: true
+library(tidyverse)
+library(here)
+
+GDP <- read.csv(here::here("gdp_pcap.csv"))
+income <- read.csv(here::here("mincpcap_cppp.csv"))
+```
+
+```{r data cleaning pt1}
+#| code-fold: true
+GDP_cleaned <- GDP |>
+  rename_all(~ str_remove(., "^X")) |>
+  mutate(across('1800':'2100', ~ as.numeric(str_replace_all(., "k", "e3")))) |>
+  pivot_longer(cols = '1800':'2100',
+               names_to = "Year",
+               values_to = "GDP per capita ($)")
+```
+
+```{r data cleaning pt2}
+#| code-fold: true
+income_cleaned <- income |>
+  rename_all(~ str_remove(., "^X")) |>
+  mutate(across('1800':'2100', ~ as.numeric(str_replace_all(., "k", "e3")))) |>
+  pivot_longer(cols = '1800':'2100',
+               names_to = "Year",
+               values_to = "Average Daily Income ($)")
+```
+
+```{r data joining}
+#| code-fold: true
+project_data <- inner_join(GDP_cleaned, income_cleaned)
+
+head(project_data)
+```
