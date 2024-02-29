@@ -17,7 +17,6 @@ execute:
 ```{r setup}
 #| code-fold: true
 library(tidyverse)
-library(here)
 
 GDP <- read.csv(here::here("gdp_pcap.csv"))
 income <- read.csv(here::here("mincpcap_cppp.csv"))
