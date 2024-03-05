@@ -43,12 +43,15 @@ As for the data cleaning process, these two data files started out messy. The co
 
 Next, since we want our data to be in long format (where each country and each year has a value for GDP per capita and average daily household income per capita), we pivot both of these data sets to be longer in this format.
 
+Also, the data in this set has been projected all the way to 2100, so we will only be looking at the data that has been physically collected already (from 1800 to 2023) so that we can run our own analysis using linear regression.
+
 ```{r data cleaning pt1}
 #| code-fold: true
 GDP_cleaned <- GDP |>
   rename_all(~ str_remove(.x, "^X")) |>
-  mutate(across('1800':'2100', ~ as.numeric(str_replace_all(.x, "k", "e3")))) |>
-  pivot_longer(cols = '1800':'2100',
+  select(country:'2023') |>
+  mutate(across('1800':'2023', ~ as.numeric(str_replace_all(.x, "k", "e3")))) |>
+  pivot_longer(cols = '1800':'2023',
                names_to = "year",
                values_to = "GDP per capita")
 ```
@@ -57,8 +60,9 @@ GDP_cleaned <- GDP |>
 #| code-fold: true
 income_cleaned <- income |>
   rename_all(~ str_remove(.x, "^X")) |>
-  mutate(across('1800':'2100', ~ as.numeric(str_replace_all(.x, "k", "e3")))) |>
-  pivot_longer(cols = '1800':'2100',
+  select(country:'2023') |>
+  mutate(across('1800':'2023', ~ as.numeric(str_replace_all(.x, "k", "e3")))) |>
+  pivot_longer(cols = '1800':'2023',
                names_to = "year",
                values_to = "Average Daily Income per capita")
 ```
