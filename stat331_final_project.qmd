@@ -14,6 +14,10 @@ execute:
   warning: false
 ---
 
+## Data Description
+
+We have chosen to analyze the relationship between a country's GDP per capita (in dollars) and a country's average daily income (in dollars). Information about each of these variables is contained 
+
 ```{r setup}
 #| code-fold: true
 library(tidyverse)
