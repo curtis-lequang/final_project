@@ -18,7 +18,13 @@ execute:
 
 We have chosen to analyze the relationship between a country's GDP per capita (in dollars) and a country's average daily income (in dollars). Information about each of these variables is contained in the two csv files `gdp_pcap.csv` and `mincpcap_cppp.csv`from the Gapminder data repository.
 
-Starting with the GDP data, each of the rows in the `gdp_pcap.csv` data frame represent a country in the world that tracks their GDP. The columns from 1800 to 2023 represent the years in which GDP per person data from the countries in the data set was collected. The columns from 2024 to 2100 are the *projected* GDP per person data from each country given the information we have collected in previous years. 
+::: callout-note
+**Definition:** GDP (or Gross Domestic Product) is a country's measure of the strength of their economy. GDP takes into account a country's consumption, investing, spending, and net exports over a certain period (usually one year) to calculate the total monetary value of goods and services in the country.
+
+GDP per capita is just a standardized value for a country's GDP based on their population, which allows comparisons on economies dealing with different sizes of populations.
+:::
+
+Starting with the GDP data, each of the rows in the `gdp_pcap.csv` data frame represent a country in the world that tracks their GDP. The columns from 1800 to 2023 represent the years in which GDP per person data from the countries in the data set was collected. The columns from 2024 to 2100 are the *projected* GDP per person data from each country given the information we have collected in previous years.
 
 The average income data is built very similarly to the GDP data, with each of the rows also representing a country that has accessible information on their average daily household incomes. The columns from 1800 to 2023 represent the years in which the average daily household income per capita was collected from the countries in the data set, and the columns from 2024 to 2100 represent the projected average daily household income per capita in the countries given the already collected information from past years.
 
@@ -29,8 +35,8 @@ It is important to note that in both of these data sets, the GDP per capita and 
 library(tidyverse)
 library(kableExtra)
 
-GDP <- read.csv(here::here("gdp_pcap.csv"))
-income <- read.csv(here::here("mincpcap_cppp.csv"))
+GDP <- read_csv(here::here("gdp_pcap.csv"))
+income <- read_csv(here::here("mincpcap_cppp.csv"))
 ```
 
 ## Hypothesis
@@ -48,7 +54,6 @@ Also, the data in this set has been projected all the way to 2100, so we will on
 ```{r data cleaning pt1}
 #| code-fold: true
 GDP_cleaned <- GDP |>
-  rename_all(~ str_remove(.x, "^X")) |>
   select(country:'2023') |>
   mutate(across('1800':'2023', ~ as.numeric(str_replace_all(.x, "k", "e3")))) |>
   pivot_longer(cols = '1800':'2023',
@@ -59,7 +64,6 @@ GDP_cleaned <- GDP |>
 ```{r data cleaning pt2}
 #| code-fold: true
 income_cleaned <- income |>
-  rename_all(~ str_remove(.x, "^X")) |>
   select(country:'2023') |>
   mutate(across('1800':'2023', ~ as.numeric(str_replace_all(.x, "k", "e3")))) |>
   pivot_longer(cols = '1800':'2023',
