@@ -3112,9 +3112,19 @@ vertical-align: -.125em;
 <section id="data-description" class="level2">
 <h2 class="anchored" data-anchor-id="data-description">Data Description</h2>
 <p>We have chosen to analyze the relationship between a country’s GDP per capita (in dollars) and a country’s average daily income (in dollars). Information about each of these variables is contained in the two csv files <code>gdp_pcap.csv</code> and <code>mincpcap_cppp.csv</code>from the Gapminder data repository.</p>
-<div class="callout-definition">
-<p>GDP (or Gross Domestic Product) is a country’s measure of the strength of their economy. GDP takes into account a country’s consumption, investing, spending, and net exports over a certain period (usually one year) to calculate the total monetary value of goods and services in the country.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Definition:</strong> GDP (or Gross Domestic Product) is a country’s measure of the strength of their economy. GDP takes into account a country’s consumption, investing, spending, and net exports over a certain period (usually one year) to calculate the total monetary value of goods and services in the country.</p>
 <p>GDP per capita is just a standardized value for a country’s GDP based on their population, which allows comparisons on economies dealing with different sizes of populations.</p>
+</div>
 </div>
 <p>Starting with the GDP data, each of the rows in the <code>gdp_pcap.csv</code> data frame represent a country in the world that tracks their GDP. The columns from 1800 to 2023 represent the years in which GDP per person data from the countries in the data set was collected. The columns from 2024 to 2100 are the <em>projected</em> GDP per person data from each country given the information we have collected in previous years.</p>
 <p>The average income data is built very similarly to the GDP data, with each of the rows also representing a country that has accessible information on their average daily household incomes. The columns from 1800 to 2023 represent the years in which the average daily household income per capita was collected from the countries in the data set, and the columns from 2024 to 2100 represent the projected average daily household income per capita in the countries given the already collected information from past years.</p>
@@ -3136,7 +3146,7 @@ vertical-align: -.125em;
 </section>
 <section id="data-cleaning" class="level2">
 <h2 class="anchored" data-anchor-id="data-cleaning">Data Cleaning</h2>
-<p>As for the data cleaning process, these two data files started out messy. The column variables all had and <strong>X</strong> in front of each of the years, and the data entries were all classified as characters since values over 10,000 2017 dollars were notated with a <strong>k</strong> instead of as a numeric variable. So we first had to drop the <strong>X</strong> in each of the column variable names and change the <strong>k</strong> in each of the data entries to become the numeric notation.</p>
+<p>As for the data cleaning process, these two data files started out messy. The data entries were all classified as characters since values over 10,000 2017 dollars were notated with a <strong>k</strong> instead of as a numeric variable. So we had to change the <strong>k</strong> in each of the data entries to become the numeric notation of the value.</p>
 <p>Next, since we want our data to be in long format (where each country and each year has a value for GDP per capita and average daily household income per capita), we pivot both of these data sets to be longer in this format.</p>
 <p>Also, the data in this set has been projected all the way to 2100, so we will only be looking at the data that has been physically collected already (from 1800 to 2023) so that we can run our own analysis using linear regression.</p>
 <div class="cell">
@@ -3685,13 +3695,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>We have chosen to analyze the relationship between a country&#39;s GDP per capita (in dollars) and a country&#39;s average daily income (in dollars). Information about each of these variables is contained in the two csv files <span class="in">`gdp_pcap.csv`</span> and <span class="in">`mincpcap_cppp.csv`</span>from the Gapminder data repository.</span>
 <span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>::: callout-definition</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>GDP (or Gross Domestic Product) is a country&#39;s measure of the strength of their economy. GDP takes into account a country&#39;s consumption, investing, spending, and net exports over a certain period (usually one year) to calculate the total monetary value of goods and services in the country.</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>::: callout-note</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>**Definition:** GDP (or Gross Domestic Product) is a country&#39;s measure of the strength of their economy. GDP takes into account a country&#39;s consumption, investing, spending, and net exports over a certain period (usually one year) to calculate the total monetary value of goods and services in the country.</span>
 <span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>GDP per capita is just a standardized value for a country&#39;s GDP based on their population, which allows comparisons on economies dealing with different sizes of populations.</span>
 <span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>:::</span>
 <span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>Starting with the GDP data, each of the rows in the <span class="in">`gdp_pcap.csv`</span> data frame represent a country in the world that tracks their GDP. The columns from 1800 to 2023 represent the years in which GDP per person data from the countries in the data set was collected. The columns from 2024 to 2100 are the *projected* GDP per person data from each country given the information we have collected in previous years. </span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>Starting with the GDP data, each of the rows in the <span class="in">`gdp_pcap.csv`</span> data frame represent a country in the world that tracks their GDP. The columns from 1800 to 2023 represent the years in which GDP per person data from the countries in the data set was collected. The columns from 2024 to 2100 are the *projected* GDP per person data from each country given the information we have collected in previous years.</span>
 <span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>The average income data is built very similarly to the GDP data, with each of the rows also representing a country that has accessible information on their average daily household incomes. The columns from 1800 to 2023 represent the years in which the average daily household income per capita was collected from the countries in the data set, and the columns from 2024 to 2100 represent the projected average daily household income per capita in the countries given the already collected information from past years.</span>
 <span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
@@ -3712,7 +3722,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a><span class="fu">## Data Cleaning</span></span>
 <span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>As for the data cleaning process, these two data files started out messy. The column variables all had and **X** in front of each of the years, and the data entries were all classified as characters since values over 10,000 2017 dollars were notated with a **k** instead of as a numeric variable. So we first had to drop the **X** in each of the column variable names and change the **k** in each of the data entries to become the numeric notation.</span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>As for the data cleaning process, these two data files started out messy. The data entries were all classified as characters since values over 10,000 2017 dollars were notated with a **k** instead of as a numeric variable. So we had to change the **k** in each of the data entries to become the numeric notation of the value.</span>
 <span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>Next, since we want our data to be in long format (where each country and each year has a value for GDP per capita and average daily household income per capita), we pivot both of these data sets to be longer in this format.</span>
 <span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a></span>
