@@ -149,6 +149,7 @@ gdp_income_model[1]
 $\widehat{\text{Income}}=1.0944 + [0.00093\cdot\text{GDP}]$.
 
 ## Model Fit
+
 ```{r}
 var_response <- var(project_data$income)
 var_fitted <- var(fitted(gdp_income_model))
