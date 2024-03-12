@@ -53,18 +53,18 @@ Also, the data in this set has been projected all the way to 2100, so we will on
 
 ```{r data cleaning pt1}
 GDP_cleaned <- GDP |>
-  select(country:'2023') |>
-  mutate(across('1800':'2023', ~ as.numeric(str_replace_all(.x, "k", "e3")))) |>
-  pivot_longer(cols = '1800':'2023',
+  select(country,'1900':'2023') |>
+  mutate(across('1900':'2023', ~ as.numeric(str_replace_all(.x, "k", "e3")))) |>
+  pivot_longer(cols = '1900':'2023',
                names_to = "year",
                values_to = "gdp")
 ```
 
 ```{r data cleaning pt2}
 income_cleaned <- income |>
-  select(country:'2023') |>
-  mutate(across('1800':'2023', ~ as.numeric(str_replace_all(.x, "k", "e3")))) |>
-  pivot_longer(cols = '1800':'2023',
+  select(country,'1900':'2023') |>
+  mutate(across('1900':'2023', ~ as.numeric(str_replace_all(.x, "k", "e3")))) |>
+  pivot_longer(cols = '1900':'2023',
                names_to = "year",
                values_to = "income")
 ```
@@ -78,6 +78,38 @@ project_data <- GDP_cleaned |>
                          "year" == "year"
                          )
             )
+```
+
+## Data Visualization
+
+```{r}
+input_decade <- function(year){
+  
+  year <- as.numeric(year)
+  
+  start <- year - (year%%10)
+  end <- start + 9
+  
+  return(str_c(start, end, sep = " - "))
+  
+}
+```
+
+```{r}
+project_data |>
+  group_by(year) |>
+  summarize(avg_gdp = mean(gdp),
+            avg_income = mean(income)
+            ) |>
+  mutate(decade = input_decade(year)) |>
+  ggplot(aes(x = avg_gdp,
+             y = avg_income
+             )
+         ) +
+  geom_point(color = "slateblue") +
+  facet_wrap(~decade) +
+  theme_bw()
+
 ```
 
 ## Linear Regression
@@ -107,6 +139,7 @@ gdp_income_model |>
        title = "Linear Relationship between GDP and Average Daily Household Income (per capita)"
        )
 ```
+
 From the visualization of our linear model above, we do indeed see that there seems to be a positive linear relationship between GDP per capita as en explanatory variable and average daily household income per capita as a response variable. Here is the equation for our linear model:
 
 ```{r}
@@ -114,3 +147,5 @@ gdp_income_model[1]
 ```
 
 $\widehat{\text{Income}}=1.0944 + [0.00093\cdot\text{GDP}]$.
+
+## Model Fit
