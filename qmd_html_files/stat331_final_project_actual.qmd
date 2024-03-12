@@ -4,13 +4,12 @@ author: "Curtis LeQuang, Warren Woo, Johnny Young, Carter Coppes"
 format: 
   html:
     embed-resources: true
-    code-fold: true
     code-tools: true
     toc: true
 editor: source
 execute: 
   error: true
-  echo: true
+  echo: false
   message: false
   warning: false
 ---
@@ -96,6 +95,9 @@ input_decade <- function(year){
 ```
 
 ```{r}
+#| fig-width: 8
+#| fig-height: 6
+
 project_data |>
   group_by(year) |>
   summarize(avg_gdp = mean(gdp),
@@ -108,7 +110,11 @@ project_data |>
          ) +
   geom_point(color = "slateblue") +
   facet_wrap(~decade) +
-  theme_bw()
+  theme_bw() +
+  labs(x = "Average World GDP (per capita)",
+       y = "",
+       subtitle = "Average World Daily Household Income (per capita)",
+       title = "World GDP and Income Relationship by Decade")
 
 ```
 
@@ -117,50 +123,59 @@ project_data |>
 We will now be taking our two quantitative variables and fitting them in a linear regression. To repeat our hypothesis, we believe that there will be a linear positive relationship between the explanatory variable of GDP per capita and the response variable of average daily household income per capita.
 
 ```{r}
-gdp_income_model <- lm(income ~ gdp,
-                       data = project_data
+project_data_avg <- project_data |>
+  group_by(country) |>
+  summarize(gdp_avg = mean(gdp),
+            income_avg = mean(income)
+            )
+
+gdp_income_model <- lm(income_avg ~ gdp_avg,
+                       data = project_data_avg
                        )
 ```
 
 Here is a visualization of our linear regression:
 
 ```{r}
-gdp_income_model |>
-  ggplot(aes(x = gdp,
-             y = income
+project_data_avg |>
+  ggplot(aes(x = gdp_avg,
+             y = income_avg
              )
          ) +
-  geom_point(alpha = 0.3) +
+  geom_point() +
   geom_smooth(method = "lm") +
   theme_bw() +
-  labs(x = "GDP per capita",
+  labs(x = "Average GDP (per capita)",
        y = "",
-       subtitle = "Average Daily Household Income per capita",
-       title = "Linear Relationship between GDP and Average Daily Household Income (per capita)"
+       subtitle = "Average Daily Household Income (per capita)",
+       title = "GDP and Income Linear Relationship"
        )
 ```
 
 From the visualization of our linear model above, we do indeed see that there seems to be a positive linear relationship between GDP per capita as en explanatory variable and average daily household income per capita as a response variable. Here is the equation for our linear model:
 
 ```{r}
+#| output: false
 gdp_income_model[1]
 ```
 
-$\widehat{\text{Income}}=1.0944 + [0.00093\cdot\text{GDP}]$.
+$\widehat{\text{Income}}=1.74549 + [0.00091\cdot\text{GDP}]$.
 
 ## Model Fit
 
 ```{r}
-var_response <- var(project_data$income)
+var_response <- var(project_data_avg$income_avg)
 var_fitted <- var(fitted(gdp_income_model))
 var_residuals <- var(residuals(gdp_income_model))
+
 variance_table <- data.frame(
   Variable = c("Response Values", "Fitted Values", "Residuals"),
   Variance = c(var_response, var_fitted, var_residuals)
-)
-kable(variance_table)
+                             )
 
-r_squared <- summary(gdp_income_model)$r.squared
-r_squared
+kable(variance_table)
 ```
 
+From the table above, we can see that the total variance in the response variable of average daily household income (per capita) is 103.54975. The amount of variability accounted for by our model is 87.38694. Therefore, $\frac{87.38694}{103.54975}\times 100=84.39\%$ of the variability in average daily household income (per capita) is explained by the average GDP (per capita).
+
+This suggests that our linear model is pretty strong at predicting the average daily household income per capita for a country from being given the country's average GDP per capita (so these two variables have a strong positive linear relationship).
