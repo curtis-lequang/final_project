@@ -1,0 +1,116 @@
+---
+title: "Stat 331 Final Project"
+author: "Curtis LeQuang, Warren Woo, Johnny Young, Carter Coppes"
+format: 
+  html:
+    embed-resources: true
+    code-fold: true
+    code-tools: true
+    toc: true
+editor: source
+execute: 
+  error: true
+  echo: true
+  message: false
+  warning: false
+---
+
+## Data Description
+
+We have chosen to analyze the relationship between a country's GDP per capita (in dollars) and a country's average daily income (in dollars). Information about each of these variables is contained in the two csv files `gdp_pcap.csv` and `mincpcap_cppp.csv`from the Gapminder data repository.
+
+::: callout-note
+**Definition:** GDP (or Gross Domestic Product) is a country's measure of the strength of their economy. GDP takes into account a country's consumption, investing, spending, and net exports over a certain period (usually one year) to calculate the total monetary value of goods and services in the country.
+
+GDP per capita is just a standardized value for a country's GDP based on their population, which allows comparisons on economies dealing with different sizes of populations.
+:::
+
+Starting with the GDP data, each of the rows in the `gdp_pcap.csv` data frame represent a country in the world that tracks their GDP. The columns from 1800 to 2023 represent the years in which GDP per person data from the countries in the data set was collected. The columns from 2024 to 2100 are the *projected* GDP per person data from each country given the information we have collected in previous years.
+
+The average income data is built very similarly to the GDP data, with each of the rows also representing a country that has accessible information on their average daily household incomes. The columns from 1800 to 2023 represent the years in which the average daily household income per capita was collected from the countries in the data set, and the columns from 2024 to 2100 represent the projected average daily household income per capita in the countries given the already collected information from past years.
+
+It is important to note that in both of these data sets, the GDP per capita and average daily household income per capita are both measured in 2017 dollars, and both are inflation and price adjusted to standardize values between all of the countries (since economies in some countries are much larger than in others).
+
+```{r setup}
+library(tidyverse)
+library(kableExtra)
+
+GDP <- read_csv(here::here("data","gdp_pcap.csv"))
+income <- read_csv(here::here("data","mincpcap_cppp.csv"))
+```
+
+## Hypothesis
+
+We are hypothesizing that a country's GDP per capita and its average daily household income per capita have a positive linear relationship. This would mean that as GDP per capita is increased, the average daily household income per capita will be predicted to also increase.
+
+## Data Cleaning
+
+As for the data cleaning process, these two data files started out messy. The data entries were all classified as characters since values over 10,000 2017 dollars were notated with a **k** instead of as a numeric variable. So we had to change the **k** in each of the data entries to become the numeric notation of the value.
+
+Next, since we want our data to be in long format (where each country and each year has a value for GDP per capita and average daily household income per capita), we pivot both of these data sets to be longer in this format.
+
+Also, the data in this set has been projected all the way to 2100, so we will only be looking at the data that has been physically collected already (from 1800 to 2023) so that we can run our own analysis using linear regression.
+
+```{r data cleaning pt1}
+GDP_cleaned <- GDP |>
+  select(country:'2023') |>
+  mutate(across('1800':'2023', ~ as.numeric(str_replace_all(.x, "k", "e3")))) |>
+  pivot_longer(cols = '1800':'2023',
+               names_to = "year",
+               values_to = "gdp")
+```
+
+```{r data cleaning pt2}
+income_cleaned <- income |>
+  select(country:'2023') |>
+  mutate(across('1800':'2023', ~ as.numeric(str_replace_all(.x, "k", "e3")))) |>
+  pivot_longer(cols = '1800':'2023',
+               names_to = "year",
+               values_to = "income")
+```
+
+Finally, since both the GDP data set and the average daily household income data set contain the same countries, we just have to do an inner join between the two using the country as the key, and our resulting data set will have a country and year combination as each row, with a returned GDP per capita and an average daily household income per capita value. This will set us up to be able to do linear regression on our data.
+
+```{r data joining}
+project_data <- GDP_cleaned |>
+  inner_join(income_cleaned,
+            by = join_by("country" == "country",
+                         "year" == "year"
+                         )
+            )
+```
+
+## Linear Regression
+
+We will now be taking our two quantitative variables and fitting them in a linear regression. To repeat our hypothesis, we believe that there will be a linear positive relationship between the explanatory variable of GDP per capita and the response variable of average daily household income per capita.
+
+```{r}
+gdp_income_model <- lm(income ~ gdp,
+                       data = project_data
+                       )
+```
+
+Here is a visualization of our linear regression:
+
+```{r}
+gdp_income_model |>
+  ggplot(aes(x = gdp,
+             y = income
+             )
+         ) +
+  geom_point(alpha = 0.3) +
+  geom_smooth(method = "lm") +
+  theme_bw() +
+  labs(x = "GDP per capita",
+       y = "",
+       subtitle = "Average Daily Household Income per capita",
+       title = "Linear Relationship between GDP and Average Daily Household Income (per capita)"
+       )
+```
+From the visualization of our linear model above, we do indeed see that there seems to be a positive linear relationship between GDP per capita as en explanatory variable and average daily household income per capita as a response variable. Here is the equation for our linear model:
+
+```{r}
+gdp_income_model[1]
+```
+
+$\widehat{\text{Income}}=1.0944 + [0.00093\cdot\text{GDP}]$.
