@@ -48,37 +48,38 @@ income_cleaned <- income |>
 project_data <- inner_join(GDP_cleaned, income_cleaned)
 
 project_data <- project_data |>
-  group_by(country) %>%
+  group_by(country) |>
   summarize(across(where(is.numeric), mean, na.rm=TRUE))
 ```
 
 ```{r data visualization #2}
 #| code-fold: true
-ggplot(project_data, aes(x = `Average Daily Income ($)`, 
-                         y = `GDP per capita ($)`)) +
-  geom_bin2d() +
-  scale_fill_viridis_c() +
-  labs(x = "Average Daily Income ($)",
-       y = "GDP per capita ($)",
-       fill = "Density") +
-  theme_bw()
+  ggplot(project_data, aes(x = `Average Daily Income ($)`, 
+                           y = `GDP per capita ($)`)) +
+    geom_bin2d() +
+    scale_fill_viridis_c() +
+    labs(x = "Average Daily Income ($)",
+         y = "GDP per capita ($)",
+         fill = "Density") +
+    theme_bw()
+  ```
 ```
 
 ```{r linear regression}
 #| code-fold: true
 project_data_lm <- lm(`GDP per capita ($)` ~ `Average Daily Income ($)`,
-                      data = project_data)
-
+                        data = project_data)
+  
 broom::tidy(project_data_lm)
 ```
 **let y = GDP per capita and let x = average daily income
 -> y = 290.62 + 890.4x
-
+  
 Given this linear equation, if a given country were to have an average daily income over the years of 0, their average GDP per capita over the years would be about 290.62. Furthermore, the expected change in average GDP per capita over the years is about 890.4 when average daily income over the years increases by 1 unit.**
-
+    
 ```{r model fit}
 #| code-fold: true
 summary(project_data_lm)
-
+  
 ii
 ```
