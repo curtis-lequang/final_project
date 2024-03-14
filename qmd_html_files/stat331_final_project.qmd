@@ -32,6 +32,7 @@ It is important to note that in both of these data sets, the GDP per capita and 
 
 ```{r setup}
 library(tidyverse)
+library(broom)
 library(kableExtra)
 
 GDP <- read_csv(here::here("data","gdp_pcap.csv"))
@@ -156,18 +157,81 @@ project_data_avg |>
        )
 ```
 
-From the visualization of our linear model above, we do indeed see that there seems to be a positive linear relationship between GDP per capita as en explanatory variable and average daily household income per capita as a response variable. Here is the equation for our linear model:
+From the visualization of our linear model above, we do indeed see that there seems to be a moderately strong positive linear relationship between GDP per capita as en explanatory variable and average daily household income per capita as a response variable. 
+
+But there does seem to be an outlier country which has a large average GDP per capita but a low average daily household income per capita. After searching through the data, this country is Monaco, and this data point starts to make more sense since Monaco is a very small country, and it seems to be more of a vacation country rather than a resident country. So the country's GDP will be high because of the low number of residents and heavy vacation traffic (as well as holding the Monaco Grand Prix annually) and they will bring in a lot of revenue. However, since the resident population is so small in Monaco, and most people who live there are probably working in the many resorts for lower wages, it also makes sense that the average daily household income is low.
+
+Because of these reasons, Monaco doesn't follow the format for the countries we are trying to analyze, so for the purposes of our model, we will be removing Monaco from our data set.
+
+```{r}
+project_data_avg <- project_data_avg |>
+  filter(country != "Monaco")
+
+gdp_income_model <- lm(income_avg ~ gdp_avg,
+                       data = project_data_avg
+                       )
+```
+
+Here is the equation for our linear model:
 
 ```{r}
 #| output: false
 gdp_income_model[1]
 ```
 
-$\widehat{\text{Income}}=1.74549 + [0.00091\cdot\text{GDP}]$.
+$\widehat{\text{Income}}=0.644 + [0.001\cdot\text{GDP}]$.
 
 ## Model Fit
 
-We will now analyze the variability of our model against the total variability of the response variable of average daily household income to check how strong of a relationship GDP and income truly have in the world.
+We will now be analyzing how good the fit of our linear model from above is. To accomplish this, we will check the four LINE conditions on our model.
+
+### Linearity
+
+Our scatter plot above looks to be following an approximately linear relationship between the average GDP and average daily household income variables. So this condition is satisfied.
+
+### Independence
+
+It is possible that our original GDP and income data were dependent on the years in which the data were collected, and there could have been cycles through the years. However, since we averaged over each country's GDP and daily household income values for every year in the data set, we have attempted to gain independence in our model's residuals. So we will assume this condition is satisfied.
+
+### Normality
+
+The next step is to check if the residuals from our model follow a normal distribution. To accomplish this, let's take a look at a histogram to see the distribution of the residuals:
+
+```{r}
+augment(gdp_income_model) |>
+  ggplot(aes(x = .resid)) +
+    geom_histogram(fill = "slateblue") +
+    theme_bw() +
+    labs(x = "Rediduals",
+         y = "",
+         subtitle = "Frequency",
+         title = "Distribution of Model Residuals"
+         )
+```
+The distribution of our model's residuals look like they follow an approximately normal distribution, so this condition is satisfied.
+
+### Equal Variances
+
+Finally, to make sure the variances of our model are approximately equal, we will look at a plot of the predicted values vs the residuals from our model and check the spread:
+
+```{r}
+augment(gdp_income_model) |>
+  ggplot(aes(x = .fitted,
+             y = .resid
+             )
+         ) +
+  geom_point() +
+  geom_hline(yintercept = 0, color = "slateblue") +
+  theme_bw() +
+  labs(x = "Preeicted Values",
+       y = "",
+       subtitle = "Residuals",
+       title = "Relationship Between Model Predicted Values and Their Residuals"
+       )
+```
+From this plot above, we notice a little bit of fanning in the residuals for lower predicted values, but then it seems like the variances of the residuals from the regression line seem to become more uniform. So we will assume this condition is satisfied.
+
+Therefore, our linear regression model seems to fit our data very well, but we can also do one more check on the actual strength of our model. We will do this by analyzing the variability of our model against the total variability of the response variable of average daily household income.
 
 ```{r}
 var_response <- var(project_data_avg$income_avg)
