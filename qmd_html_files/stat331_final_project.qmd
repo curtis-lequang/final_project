@@ -284,6 +284,7 @@ simulated_plot <- ggplot(combined_data, aes(x = gdp, y = simulated)) +
 plot_grid(observed_plot, simulated_plot, nrow = 1)
 ```
 
+Comparing the observed and simulated data, they are very similar to each other. The simulated data also follows a strong positive linear relationship between average GDP and simulated average daily household income. There is more noise and variability on the lower end of GDP but as GDP increases, the simulated data follows the regression line with less error than the observed data.
 
 ## Predictive Checks
 
@@ -309,3 +310,7 @@ for (i in 1:num_simulations) {
 hist(rsquared_values, main = "Distribution of R-squared Values",
      xlab = "R-squared", col = "slateblue", breaks = 20)
 ```
+
+After simulating predicted models against our observed model 1,000 times we were able to get a more accurate overview of how well simulated values can explain our observed values. Above we have a distribution of each R-squared value from each of the simulations. The distribution is centered around 0.89 showing that the simulated values is a very strong measure of explaining the variability in the observed values.
+
+
