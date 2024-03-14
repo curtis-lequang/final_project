@@ -289,26 +289,38 @@ Comparing the observed and simulated data, they are very similar to each other. 
 ## Predictive Checks
 
 ```{r}
-set.seed(43)
+predictive_checks <- function(gdp_income_model, project_data_avg) {
 
-num_simulations <- 1000
-rsquared_values <- numeric(num_simulations)
-residual_std_error <- sd(residuals(gdp_income_model))
-
-for (i in 1:num_simulations) {
-  random_errors <- rnorm(length(predictions), 0, residual_std_error)
-  simulated_data <- predictions + random_errors
+  residual_std_error <- sigma(gdp_income_model)
+  
+  random_errors <- rnorm(length(project_data_avg$income_avg), 0, residual_std_error)
+  
+  simulated_data <- predict(gdp_income_model) + random_errors
   
   combined_data <- data.frame(observed = project_data_avg$income_avg,
                               simulated = simulated_data,
                               gdp = project_data_avg$gdp_avg) |>
                     na.omit()
+  
   lm_model <- lm(observed ~ simulated, data = combined_data)
-  rsquared_values[i] <- summary(lm_model)$r.squared
+  rsquared <- summary(lm_model)$r.squared
+  
+  return(rsquared)
 }
 
-hist(rsquared_values, main = "Distribution of R-squared Values",
-     xlab = "R-squared", col = "slateblue", breaks = 20)
+set.seed(123)  
+rsquared_values <- map_dbl(1:1000, ~predictive_checks(gdp_income_model, project_data_avg))
+
+ggplot(data.frame(rsquared = rsquared_values), aes(x = rsquared)) +
+  geom_histogram(binwidth = 0.008, fill = "slateblue", color = "black") +
+  scale_x_continuous(breaks = seq(.85, .95, by = 0.01)) + 
+  labs(title = "Distribution of R-Squared Values",
+       x = "R-Squared",
+       y = "Frequency")+
+  theme_bw()+
+theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) 
+
 ```
 
 After simulating predicted models against our observed model 1,000 times we were able to get a more accurate overview of how well simulated values can explain our observed values. Above we have a distribution of each R-squared value from each of the simulations. The distribution is centered around 0.89 showing that the simulated values is a very strong measure of explaining the variability in the observed values.
