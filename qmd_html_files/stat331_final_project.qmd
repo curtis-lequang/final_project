@@ -249,3 +249,63 @@ kable(variance_table)
 From the table above, we can see that the total variance in the response variable of average daily household income (per capita) is 103.54975. The amount of variability accounted for by our model is 87.38694. Therefore, $\frac{87.38694}{103.54975}\times 100=84.39\%$ of the variability in average daily household income (per capita) is explained by the average GDP (per capita).
 
 This suggests that our linear model is pretty strong at predicting the average daily household income per capita for a country from being given the country's average GDP per capita (so these two variables have a strong positive linear relationship).
+
+## Simulation
+
+```{r}
+set.seed(100)
+
+predictions <- predict(gdp_income_model)
+random_errors <- rnorm(length(predictions), 0, sigma(gdp_income_model))
+
+simulated_data <- predictions + random_errors
+
+combined_data <- data.frame(observed = project_data_avg$income_avg,
+                            simulated = simulated_data,
+                            gdp = project_data_avg$gdp_avg)
+library(cowplot)
+
+observed_plot <- ggplot(combined_data, aes(x = gdp, y = observed)) +
+  geom_point(alpha = 0.5, size = 2) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(x = "Average GDP (per capita)",
+       y = "Average Daily Household Income (per capita)",
+       title = "Observed Data") +
+  theme_bw()
+
+simulated_plot <- ggplot(combined_data, aes(x = gdp, y = simulated)) +
+  geom_point(alpha = 0.5, size = 2) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(x = "Average GDP (per capita)",
+       y = "Average Daily Household Income (per capita)",
+       title = "Simulated Data") +
+  theme_bw()
+
+plot_grid(observed_plot, simulated_plot, nrow = 1)
+```
+
+
+## Predictive Checks
+
+```{r}
+set.seed(43)
+
+num_simulations <- 1000
+rsquared_values <- numeric(num_simulations)
+residual_std_error <- sd(residuals(gdp_income_model))
+
+for (i in 1:num_simulations) {
+  random_errors <- rnorm(length(predictions), 0, residual_std_error)
+  simulated_data <- predictions + random_errors
+  
+  combined_data <- data.frame(observed = project_data_avg$income_avg,
+                              simulated = simulated_data,
+                              gdp = project_data_avg$gdp_avg) |>
+                    na.omit()
+  lm_model <- lm(observed ~ simulated, data = combined_data)
+  rsquared_values[i] <- summary(lm_model)$r.squared
+}
+
+hist(rsquared_values, main = "Distribution of R-squared Values",
+     xlab = "R-squared", col = "slateblue", breaks = 20)
+```
