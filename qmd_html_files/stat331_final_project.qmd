@@ -33,6 +33,7 @@ It is important to note that in both of these data sets, the GDP per capita and 
 ```{r setup}
 library(tidyverse)
 library(broom)
+library(cowplot)
 library(kableExtra)
 
 GDP <- read_csv(here::here("data","gdp_pcap.csv"))
@@ -263,7 +264,6 @@ simulated_data <- predictions + random_errors
 combined_data <- data.frame(observed = project_data_avg$income_avg,
                             simulated = simulated_data,
                             gdp = project_data_avg$gdp_avg)
-library(cowplot)
 
 observed_plot <- ggplot(combined_data, aes(x = gdp, y = observed)) +
   geom_point(alpha = 0.5, size = 2) +
