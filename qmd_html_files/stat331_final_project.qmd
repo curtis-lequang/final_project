@@ -16,7 +16,7 @@ execute:
 
 ## Data Description
 
-We have chosen to analyze the relationship between a country's GDP per capita (in dollars) and a country's average daily income (in dollars). Information about each of these variables is contained in the two csv files `gdp_pcap.csv` and `mincpcap_cppp.csv`from the Gapminder data repository.
+We have chosen to analyze the relationship between a country's GDP per capita (in dollars) and a country's average daily income per capita (in dollars). Information about each of these variables is contained in the two csv files `gdp_pcap.csv` and `mincpcap_cppp.csv`from the Gapminder data repository.
 
 ::: callout-note
 **Definition:** GDP (or Gross Domestic Product) is a country's measure of the strength of their economy. GDP takes into account a country's consumption, investing, spending, and net exports over a certain period (usually one year) to calculate the total monetary value of goods and services in the country.
@@ -24,9 +24,9 @@ We have chosen to analyze the relationship between a country's GDP per capita (i
 GDP per capita is just a standardized value for a country's GDP based on their population, which allows comparisons on economies dealing with different sizes of populations.
 :::
 
-Starting with the GDP data, each of the rows in the `gdp_pcap.csv` data frame represent a country in the world that tracks their GDP. The columns from 1800 to 2023 represent the years in which GDP per person data from the countries in the data set was collected. The columns from 2024 to 2100 are the *projected* GDP per person data from each country given the information we have collected in previous years.
+Starting with the GDP data, each of the observational units represent a country in the world that tracks their GDP. The columns from 1800 to 2023 represent the years in which GDP per capita data from the countries in the data set was collected. The columns from 2024 to 2100 are the *projected* GDP per capita data from each country given the information we have collected in previous years.
 
-The average income data is built very similarly to the GDP data, with each of the rows also representing a country that has accessible information on their average daily household incomes. The columns from 1800 to 2023 represent the years in which the average daily household income per capita was collected from the countries in the data set, and the columns from 2024 to 2100 represent the projected average daily household income per capita in the countries given the already collected information from past years.
+The average income data is built very similarly to the GDP data, with each of the observational units also representing a country that has accessible information on their average daily household incomes. The columns from 1800 to 2023 represent the years in which the average daily household income per capita was collected from the countries in the data set, and the columns from 2024 to 2100 represent the *projected* average daily household income per capita in the countries given the already collected information from past years.
 
 It is important to note that in both of these data sets, the GDP per capita and average daily household income per capita are both measured in 2017 dollars, and both are inflation and price adjusted to standardize values between all of the countries (since economies in some countries are much larger than in others).
 
@@ -42,11 +42,13 @@ income <- read_csv(here::here("data","mincpcap_cppp.csv"))
 
 ## Hypothesis
 
+For our analysis, we will be setting the GDP per capita as our explanatory variable, and we will be setting the average daily household income per capita as our response variable. We chose these two variables as we wanted to analyze the relationship between a country's economic power as a whole to the economic power of its citizens individually, and we predict there will be a strong relationship.
+
 We are hypothesizing that a country's GDP per capita and its average daily household income per capita have a positive linear relationship. This would mean that as GDP per capita is increased, the average daily household income per capita will be predicted to also increase.
 
 ## Data Cleaning
 
-As for the data cleaning process, these two data files started out messy. The data entries were all classified as characters since values over 10,000 2017 dollars were notated with a **k** instead of as a numeric variable. So we had to change the **k** in each of the data entries to become the numeric notation of the value.
+As for the data cleaning process, these two data files started out messy. The data entries were all classified as characters since values over 10,000 dollars were notated with a **k** instead of as a numeric variable. So we had to change the **k** in each of the data entries to become the numeric notation of the value.
 
 Next, since we want our data to be in long format (where each country and each year has a value for GDP per capita and average daily household income per capita), we pivot both of these data sets to be longer in this format.
 
@@ -70,7 +72,7 @@ income_cleaned <- income |>
                values_to = "income")
 ```
 
-Finally, since both the GDP data set and the average daily household income data set contain the same countries, we just have to do an inner join between the two using the country as the key, and our resulting data set will have a country and year combination as each row, with a returned GDP per capita and an average daily household income per capita value. This will set us up to be able to do linear regression on our data.
+Finally, since both the GDP data set and the average daily household income data set contain the same countries, we just have to do an inner join between the two using the country as the key, and our resulting data set will have a country and year combination as each observational unit, with a GDP per capita value and an average daily household income per capita value collected for each observational unit. This will set us up to be able to do necessary analysis on our data.
 
 ```{r data joining}
 project_data <- GDP_cleaned |>
@@ -80,6 +82,10 @@ project_data <- GDP_cleaned |>
                          )
             )
 ```
+
+::: callout-important
+Our final data set contains 124 years of data for each of 195 countries in the world, accounting for a total of 24,180 observational units.
+:::
 
 ## Data Visualization
 
@@ -128,6 +134,10 @@ From the above visualization, we can see that the decades from 1900 to 1950 had 
 
 We will now be taking our two quantitative variables and fitting them in a linear regression. To repeat our hypothesis, we believe that there will be a linear positive relationship between the explanatory variable of GDP per capita and the response variable of average daily household income per capita.
 
+::: callout-important
+In order to safely analyze the relationship between these two variables across the world's countries, we have averaged each country's GDP and average daily household income data across all of the years. So, the data we will be using for the linear regression has 195 observational units (one per country), each with an *average* GDP per capita value and an *average* daily household income per capita value.
+:::
+
 ```{r}
 project_data_avg <- project_data |>
   group_by(country) |>
@@ -160,7 +170,7 @@ project_data_avg |>
 
 From the visualization of our linear model above, we do indeed see that there seems to be a moderately strong positive linear relationship between GDP per capita as en explanatory variable and average daily household income per capita as a response variable. 
 
-But there does seem to be an outlier country which has a large average GDP per capita but a low average daily household income per capita. After searching through the data, this country is Monaco, and this data point starts to make more sense since Monaco is a very small country, and it seems to be more of a vacation country rather than a resident country. So the country's GDP will be high because of the low number of residents and heavy vacation traffic (as well as holding the Monaco Grand Prix annually) and they will bring in a lot of revenue. However, since the resident population is so small in Monaco, and most people who live there are probably working in the many resorts for lower wages, it also makes sense that the average daily household income is low.
+But there does seem to be an outlier country which has a large average GDP per capita but a low average daily household income per capita. After searching through the data, this country is Monaco, and this data point starts to make more sense since Monaco is a very small country, and it seems to be more of a vacation country rather than a resident country. So the country's GDP will be high because of the low number of residents and heavy vacation traffic (as well as holding the Monaco Grand Prix annually) and they will bring in a lot of revenue annually. However, since the resident population is so small in Monaco, and most people who live there are probably working in the many resorts for lower wages, it also makes sense that the average daily household income is low.
 
 Because of these reasons, Monaco doesn't follow the format for the countries we are trying to analyze, so for the purposes of our model, we will be removing Monaco from our data set.
 
@@ -173,7 +183,7 @@ gdp_income_model <- lm(income_avg ~ gdp_avg,
                        )
 ```
 
-Here is the equation for our linear model:
+Here is the equation for our linear model, where $\text{GDP}$ is a country's average GDP per capita, and $\widehat{\text{Income}}$ is a country's predicted average daily household income per capita.:
 
 ```{r}
 #| output: false
@@ -181,6 +191,14 @@ gdp_income_model[1]
 ```
 
 $\widehat{\text{Income}}=0.644 + [0.001\cdot\text{GDP}]$.
+
+::: callout-note
+This equation for the linear regression model tells us two things:
+
+1. A country with an average GDP per capita of 0 dollars will have a predicted average daily household income per capita of 0.644 dollars.
+
+2. Given a 1 dollar increase in a country's average GDP per capita, the model will predict a 0.001 dollar increase in the country's average daily household income per capita.
+:::
 
 ## Model Fit
 
@@ -209,6 +227,7 @@ augment(gdp_income_model) |>
          title = "Distribution of Model Residuals"
          )
 ```
+
 The distribution of our model's residuals look like they follow an approximately normal distribution, so this condition is satisfied.
 
 ### Equal Variances
@@ -230,9 +249,10 @@ augment(gdp_income_model) |>
        title = "Relationship Between Model Predicted Values and Their Residuals"
        )
 ```
+
 From this plot above, we notice a little bit of fanning in the residuals for lower predicted values, but then it seems like the variances of the residuals from the regression line seem to become more uniform. So we will assume this condition is satisfied.
 
-Therefore, our linear regression model seems to fit our data very well, but we can also do one more check on the actual strength of our model. We will do this by analyzing the variability of our model against the total variability of the response variable of average daily household income.
+Therefore, our linear regression model seems to fit our data very well. But now, we can also do one more check on the actual strength of our model. We will do this by analyzing the variability of our model against the total variability of the response variable of average daily household income.
 
 ```{r}
 var_response <- var(project_data_avg$income_avg)
@@ -249,7 +269,7 @@ kable(variance_table)
 
 From the table above, we can see that the total variance in the response variable of average daily household income (per capita) is 103.54975. The amount of variability accounted for by our model is 87.38694. Therefore, $\frac{87.38694}{103.54975}\times 100=84.39\%$ of the variability in average daily household income (per capita) is explained by the average GDP (per capita).
 
-This suggests that our linear model is pretty strong at predicting the average daily household income per capita for a country from being given the country's average GDP per capita (so these two variables have a strong positive linear relationship).
+This suggests that our linear model is quite strong at predicting the average daily household income per capita for a country from being given the country's average GDP per capita (so these two variables have a strong positive linear relationship).
 
 ## Simulation
 
@@ -265,26 +285,30 @@ combined_data <- data.frame(observed = project_data_avg$income_avg,
                             simulated = simulated_data,
                             gdp = project_data_avg$gdp_avg)
 
-observed_plot <- ggplot(combined_data, aes(x = gdp, y = observed)) +
+observed_plot <- combined_data |> 
+  ggplot(aes(x = gdp, y = observed)) +
   geom_point(alpha = 0.5, size = 2) +
   geom_smooth(method = "lm", se = FALSE) +
   labs(x = "Average GDP (per capita)",
        y = "Average Daily Household Income (per capita)",
-       title = "Observed Data") +
+       title = "Observed Data"
+       ) +
   theme_bw()
 
-simulated_plot <- ggplot(combined_data, aes(x = gdp, y = simulated)) +
+simulated_plot <- combined_data |>
+  ggplot(aes(x = gdp, y = simulated)) +
   geom_point(alpha = 0.5, size = 2) +
   geom_smooth(method = "lm", se = FALSE) +
   labs(x = "Average GDP (per capita)",
        y = "Average Daily Household Income (per capita)",
-       title = "Simulated Data") +
+       title = "Simulated Data"
+       ) +
   theme_bw()
 
 plot_grid(observed_plot, simulated_plot, nrow = 1)
 ```
 
-Comparing the observed and simulated data, they are very similar to each other. The simulated data also follows a strong positive linear relationship between average GDP and simulated average daily household income. There is more noise and variability on the lower end of GDP but as GDP increases, the simulated data follows the regression line with less error than the observed data.
+Comparing the observed and simulated data, they are very similar to each other. Similar to the observed data, the simulated data also follows a strong positive linear relationship between average GDP and simulated average daily household income. The main difference between the two plots is that there is more noise and variability on the lower end of GDP in the simulated plot, but as GDP increases, the simulated data follows the regression line with less error than the observed data.
 
 ## Predictive Checks
 
@@ -293,7 +317,10 @@ predictive_checks <- function(gdp_income_model, project_data_avg) {
 
   residual_std_error <- sigma(gdp_income_model)
   
-  random_errors <- rnorm(length(project_data_avg$income_avg), 0, residual_std_error)
+  random_errors <- rnorm(length(project_data_avg$income_avg), 
+                         0, 
+                         residual_std_error
+                         )
   
   simulated_data <- predict(gdp_income_model) + random_errors
   
@@ -309,20 +336,28 @@ predictive_checks <- function(gdp_income_model, project_data_avg) {
 }
 
 set.seed(123)  
-rsquared_values <- map_dbl(1:1000, ~predictive_checks(gdp_income_model, project_data_avg))
+rsquared_values <- map_dbl(1:1000, 
+                           ~ predictive_checks(gdp_income_model,
+                                               project_data_avg
+                                               )
+                           )
 
-ggplot(data.frame(rsquared = rsquared_values), aes(x = rsquared)) +
+data.frame(rsquared = rsquared_values) |>
+  ggplot(aes(x = rsquared)) +
   geom_histogram(binwidth = 0.008, fill = "slateblue", color = "black") +
   scale_x_continuous(breaks = seq(.85, .95, by = 0.01)) + 
   labs(title = "Distribution of R-Squared Values",
        x = "R-Squared",
-       y = "Frequency")+
-  theme_bw()+
-theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) 
+       y = "",
+       subtitle = "Frequency"
+       ) +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()
+        ) 
 
 ```
 
-After simulating predicted models against our observed model 1,000 times we were able to get a more accurate overview of how well simulated values can explain our observed values. Above we have a distribution of each R-squared value from each of the simulations. The distribution is centered around 0.89 showing that the simulated values is a very strong measure of explaining the variability in the observed values.
+After simulating predicted models against our observed model 1,000 times, we were able to get a more accurate overview of how well simulated values can explain our observed values. Above we have a distribution of each R-squared value from each of the simulations. The distribution is centered around 0.89 showing that the simulated values is a very strong measure of explaining the variability in the observed values.
 
 
